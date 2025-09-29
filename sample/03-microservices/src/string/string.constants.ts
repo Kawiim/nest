@@ -1,0 +1,1 @@
+export const STRING_SERVICE = 'STRING_SERVICE';

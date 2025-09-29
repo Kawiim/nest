@@ -1,0 +1,87 @@
+{
+  "alert": {
+    "name": "NestJS Microservices Error Rate Alert",
+    "message": "High error rate detected in NestJS microservices",
+    "frequency": "1m",
+    "handler": 1,
+    "noDataState": "no_data",
+    "executionErrorState": "alerting",
+    "for": "2m",
+    "conditions": [
+      {
+        "evaluator": {
+          "params": [
+            5
+          ],
+          "type": "gt"
+        },
+        "operator": {
+          "type": "and"
+        },
+        "query": {
+          "params": [
+            "A",
+            "5m",
+            "now"
+          ]
+        },
+        "reducer": {
+          "params": [],
+          "type": "last"
+        },
+        "type": "query"
+      }
+    ],
+    "queries": [
+      {
+        "datasource": {
+          "type": "loki"
+        },
+        "model": {
+          "expr": "rate({app=\"nest-microservices\"} |= \"error\" [5m]) * 100",
+          "refId": "A"
+        },
+        "queryType": "",
+        "refId": "A"
+      }
+    ],
+    "state": "alerting",
+    "title": "High Error Rate Alert",
+    "uid": "nestjs-error-rate-alert"
+  },
+  "contactPoints": [
+    {
+      "name": "default-email",
+      "type": "email",
+      "settings": {
+        "addresses": "admin@yourcompany.com",
+        "subject": "🚨 NestJS Alert: {{ .GroupLabels.alertname }}",
+        "message": "Alert: {{ .GroupLabels.alertname }}\nValue: {{ .Value }}\nTime: {{ .StartsAt.Format \"2006-01-02 15:04:05\" }}"
+      }
+    },
+    {
+      "name": "slack-alerts",
+      "type": "slack",
+      "settings": {
+        "url": "YOUR_SLACK_WEBHOOK_URL",
+        "channel": "#alerts",
+        "title": "🚨 NestJS Microservices Alert",
+        "text": "Alert: {{ .GroupLabels.alertname }}\nValue: {{ .Value }}\nService: {{ .GroupLabels.service }}"
+      }
+    }
+  ],
+  "notificationPolicies": [
+    {
+      "name": "default-policy",
+      "type": "root",
+      "matchers": [],
+      "contactPoint": "default-email",
+      "groupBy": [
+        "alertname"
+      ],
+      "groupWait": "10s",
+      "groupInterval": "10s",
+      "repeatInterval": "1h"
+    }
+  ]
+}
